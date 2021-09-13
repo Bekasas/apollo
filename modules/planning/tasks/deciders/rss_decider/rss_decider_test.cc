@@ -25,6 +25,16 @@ namespace ad_rss {
 namespace core {
 
 using ad_rss::world::OccupiedRegion;
+  
+  
+  
+  /*
+  Test函数对测试环境进行初始化。
+  定义了前车leadingObject、跟车followingObject以及道路信息。
+  后面将跟车followingObject作为Ego Vehicle。
+  
+  
+  */
 
 class RssCheckSameDirectionTests : public testing::Test {
  protected:
@@ -87,7 +97,7 @@ class RssCheckSameDirectionTests : public testing::Test {
 
 TEST_F(RssCheckSameDirectionTests, OtherLeading_FixDistance) {
   ::ad_rss::world::WorldModel worldModel;
-
+//初始化RSS测试场景，leadingObject作为周围车辆，followingObject作为自车。
   worldModel.egoVehicle = ad_rss::objectAsEgo(followingObject);
   scene.object = leadingObject;
 
@@ -101,6 +111,9 @@ TEST_F(RssCheckSameDirectionTests, OtherLeading_FixDistance) {
   ASSERT_TRUE(rssCheck.calculateAccelerationRestriction(
       worldModel, accelerationRestriction));
 
+  
+  //如果RSS输出的加速度限制的最大值等于brakeMin，则认为不安全。brakeMin应该是RSS认为的自车能执行的最大制动加速度（RSS中Min和Max分别对应合理的最大值以及非预期的最大值）。
+  //如果RSS认为只能按最大加速度执行，呢么就认为不安全。
   if (accelerationRestriction.longitudinalRange.maximum ==
       -1. * worldModel.egoVehicle.dynamics.alphaLon.brakeMin) {
     printf("[----------] RSS unsafe!!!\n");
